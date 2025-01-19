@@ -1,6 +1,80 @@
-import { define } from "../scripts/class-definitions";
+import { define } from "../../codegen/class-definitions";
 
 export default [
+  define({
+    name: "DNSResolver",
+    construct: false,
+    noConstructor: true,
+    finalize: true,
+    configurable: false,
+    klass: {},
+    proto: {
+      setServers: {
+        fn: "setServers",
+        length: 1,
+      },
+      getServers: {
+        fn: "getServers",
+        length: 0,
+      },
+      resolve: {
+        fn: "resolve",
+        length: 3,
+      },
+      resolveSrv: {
+        fn: "resolveSrv",
+        length: 1,
+      },
+      resolveTxt: {
+        fn: "resolveTxt",
+        length: 1,
+      },
+      resolveSoa: {
+        fn: "resolveSoa",
+        length: 1,
+      },
+      resolveNaptr: {
+        fn: "resolveNaptr",
+        length: 1,
+      },
+      resolveMx: {
+        fn: "resolveMx",
+        length: 1,
+      },
+      resolveCaa: {
+        fn: "resolveCaa",
+        length: 1,
+      },
+      resolveNs: {
+        fn: "resolveNs",
+        length: 1,
+      },
+      resolvePtr: {
+        fn: "resolvePtr",
+        length: 1,
+      },
+      resolveCname: {
+        fn: "resolveCname",
+        length: 1,
+      },
+      resolveAny: {
+        fn: "resolveAny",
+        length: 1,
+      },
+      setLocalAddress: {
+        fn: "setLocalAddress",
+        length: 1,
+      },
+      cancel: {
+        fn: "cancel",
+        length: 0,
+      },
+      reverse: {
+        fn: "reverse",
+        length: 1,
+      },
+    },
+  }),
   define({
     name: "FSWatcher",
     construct: false,
@@ -93,6 +167,12 @@ export default [
     finalize: true,
     klass: {},
     JSType: "0b11101110",
+
+    // TODO: generate-classes needs to handle Object.create properly when
+    // functions are used. The functions need a fallback implementation to use
+    // getters.
+    supportsObjectCreate: true,
+
     proto: {
       isBlockDevice: {
         fn: "isBlockDevice_",
@@ -229,6 +309,12 @@ export default [
     finalize: true,
     klass: {},
     JSType: "0b11101110",
+
+    // TODO: generate-classes needs to handle Object.create properly when
+    // functions are used. The functions need a fallback implementation to use
+    // getters.
+    supportsObjectCreate: true,
+
     proto: {
       isBlockDevice: {
         fn: "isBlockDevice_",
@@ -379,6 +465,11 @@ export default [
 
     klass: {},
 
+    // TODO: generate-classes needs to handle Object.create properly when
+    // functions are used. The functions need a fallback implementation to use
+    // getters.
+    supportsObjectCreate: true,
+
     proto: {
       isBlockDevice: {
         fn: "isBlockDevice",
@@ -412,12 +503,22 @@ export default [
         getter: "getName",
         cache: true,
       },
+      path: {
+        getter: "getPath",
+        cache: true,
+      },
+      parentPath: {
+        // @since node v20.12.x
+        getter: "getPath",
+        cache: true,
+      },
     },
   }),
   define({
     name: "NodeJSFS",
     construct: true,
-    finalize: false,
+    noConstructor: true,
+    finalize: true,
 
     klass: {},
     proto: {
@@ -470,8 +571,6 @@ export default [
       mkdtempSync: { fn: "mkdtempSync", length: 2 },
       open: { fn: "open", length: 4 },
       openSync: { fn: "openSync", length: 3 },
-      opendir: { fn: "opendir", length: 3 },
-      opendirSync: { fn: "opendirSync", length: 2 },
       readdir: { fn: "readdir", length: 3 },
       readdirSync: { fn: "readdirSync", length: 2 },
       read: { fn: "read", length: 6 },
@@ -509,6 +608,8 @@ export default [
       writeSync: { fn: "writeSync", length: 5 },
       writev: { fn: "writev", length: 4 },
       writevSync: { fn: "writevSync", length: 3 },
+      realpathNative: { fn: "realpathNative", length: 3 },
+      realpathNativeSync: { fn: "realpathNativeSync", length: 3 },
       // TODO:
       // Dir: { fn: 'Dir', length: 3 },
       Dirent: { getter: "getDirent" },

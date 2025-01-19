@@ -37,13 +37,13 @@ It's common to place all packages in a `packages` directory. The `"workspaces"` 
 
 ---
 
-To add one workspace as a dependency of another, modify its `package.json`. Here we're adding `stuff-a` as a dependency of `stuff-b`.
+To add dependencies between workspaces, use the `"workspace:*"` syntax. Here we're adding `stuff-a` as a dependency of `stuff-b`.
 
 ```json-diff#packages/stuff-b/package.json
 {
   "name": "stuff-b",
   "dependencies": {
-+   "stuff-a": "*"
++   "stuff-a": "workspace:*"
   }
 }
 ```
@@ -67,4 +67,4 @@ $ bun add zod
 
 ---
 
-See [Docs > Package manager](/docs/cli/install) for complete documentation of Bun's package manager.
+See [Docs > Package manager](https://bun.sh/docs/cli/install) for complete documentation of Bun's package manager.

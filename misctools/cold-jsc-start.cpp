@@ -40,7 +40,7 @@ JSC_DEFINE_HOST_FUNCTION(jsFunctionWrite, (JSC::JSGlobalObject * globalObject,
   int32_t fd = STDOUT_FILENO;
   if (callframe->argumentCount() > 1) {
     fd = arg1.toInt32(globalObject);
-    RETURN_IF_EXCEPTION(scope, encodedJSValue());
+    RETURN_IF_EXCEPTION(scope, {});
   } else {
     toWriteArg = arg1;
   }
@@ -53,7 +53,7 @@ JSC_DEFINE_HOST_FUNCTION(jsFunctionWrite, (JSC::JSGlobalObject * globalObject,
   }
 
   auto string = toWriteArg.toWTFString(globalObject);
-  RETURN_IF_EXCEPTION(scope, encodedJSValue());
+  RETURN_IF_EXCEPTION(scope, {});
   auto utf8 = string.utf8();
   auto length = utf8.length();
   auto written = write(fd, utf8.data(), length);
@@ -132,9 +132,10 @@ int main(int argc, char **argv) {
 
   vm.ref();
   if (argc > 2) {
-    auto source = JSC::makeSource(WTF::String::fromUTF8(argv[argc - 1]),
-                                  SourceOrigin(WTF::URL("file://eval.js"_s)),
-                                  "eval.js"_s);
+    auto source =
+        JSC::makeSource(WTF::String::fromUTF8(argv[argc - 1]),
+                        SourceOrigin(WTF::URL("file://eval.js"_s)),
+                        JSC::SourceTaintedOrigin::Untainted, "eval.js"_s);
 
     NakedPtr<Exception> evaluationException;
     JSValue returnValue =
@@ -163,7 +164,8 @@ int main(int argc, char **argv) {
   if (auto contents = WTF::FileSystemImpl::readEntireFile(fileURLString)) {
     auto source =
         JSC::makeSource(WTF::String::fromUTF8(contents.value()),
-                        SourceOrigin(WTF::URL(fileURLString)), fileURLString);
+                        SourceOrigin(WTF::URL(fileURLString)),
+                        JSC::SourceTaintedOrigin::Untainted, fileURLString);
 
     NakedPtr<Exception> evaluationException;
     JSValue returnValue =

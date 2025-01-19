@@ -1,12 +1,29 @@
 // Import Events
-var EventEmitter = require("node:events");
+let EventEmitter;
+
+const ObjectDefineProperty = Object.defineProperty;
 
 // Export Domain
 var domain: any = {};
 domain.createDomain = domain.create = function () {
+  if (!EventEmitter) {
+    EventEmitter = require("node:events");
+  }
   var d = new EventEmitter();
 
   function emitError(e) {
+    e ||= $ERR_UNHANDLED_ERROR();
+    if (typeof e === "object") {
+      e.domainEmitter = this;
+      ObjectDefineProperty(e, "domain", {
+        __proto__: null,
+        configurable: true,
+        enumerable: false,
+        value: domain,
+        writable: true,
+      });
+      e.domainThrown = false;
+    }
     d.emit("error", e);
   }
 
@@ -18,9 +35,9 @@ domain.createDomain = domain.create = function () {
   };
   d.bind = function (fn) {
     return function () {
-      var args = Array.prototype.slice.call(arguments);
+      var args = Array.prototype.slice.$call(arguments);
       try {
-        fn.apply(null, args);
+        fn.$apply(null, args);
       } catch (err) {
         emitError(err);
       }
@@ -31,9 +48,9 @@ domain.createDomain = domain.create = function () {
       if (err) {
         emitError(err);
       } else {
-        var args = Array.prototype.slice.call(arguments, 1);
+        var args = Array.prototype.slice.$call(arguments, 1);
         try {
-          fn.apply(null, args);
+          fn.$apply(null, args);
         } catch (err) {
           emitError(err);
         }

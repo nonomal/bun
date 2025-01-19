@@ -31,9 +31,14 @@
 
 #include "JSDOMGlobalObject.h"
 
-#include "JavaScriptCore/ArrayBuffer.h"
+#include <JavaScriptCore/ArrayBuffer.h>
 
-#include "JavaScriptCore/JSArrayBuffer.h"
+#include <JavaScriptCore/JSArrayBuffer.h>
+
+static inline WebCore::JSDOMGlobalObject* getDefaultGlobal(JSC::JSGlobalObject* lexicalGlobalObject)
+{
+    return defaultGlobalObject(lexicalGlobalObject);
+}
 
 namespace WebCore {
 
@@ -46,16 +51,12 @@ WebCoreTypedArrayController::~WebCoreTypedArrayController() = default;
 
 JSC::JSArrayBuffer* WebCoreTypedArrayController::toJS(JSC::JSGlobalObject* lexicalGlobalObject, JSC::JSGlobalObject* globalObject, JSC::ArrayBuffer* buffer)
 {
-    return JSC::jsCast<JSC::JSArrayBuffer*>(WebCore::toJS(lexicalGlobalObject, JSC::jsCast<JSDOMGlobalObject*>(globalObject), buffer));
+    return JSC::jsCast<JSC::JSArrayBuffer*>(WebCore::toJS(lexicalGlobalObject, getDefaultGlobal(globalObject), buffer));
 }
 
 void WebCoreTypedArrayController::registerWrapper(JSC::JSGlobalObject* globalObject, JSC::ArrayBuffer* native, JSC::JSArrayBuffer* wrapper)
 {
-    // require("vm") can be used to create an ArrayBuffer
-    if (UNLIKELY(!globalObject->inherits<JSDOMGlobalObject>()))
-        return;
-
-    cacheWrapper(JSC::jsCast<JSDOMGlobalObject*>(globalObject)->world(), native, wrapper);
+    cacheWrapper(static_cast<JSVMClientData*>(JSC::getVM(globalObject).clientData)->normalWorld(), native, wrapper);
 }
 
 bool WebCoreTypedArrayController::isAtomicsWaitAllowedOnCurrentThread()
@@ -63,10 +64,10 @@ bool WebCoreTypedArrayController::isAtomicsWaitAllowedOnCurrentThread()
     return m_allowAtomicsWait;
 }
 
-bool WebCoreTypedArrayController::JSArrayBufferOwner::isReachableFromOpaqueRoots(JSC::Handle<JSC::Unknown> handle, void*, JSC::AbstractSlotVisitor& visitor, const char** reason)
+bool WebCoreTypedArrayController::JSArrayBufferOwner::isReachableFromOpaqueRoots(JSC::Handle<JSC::Unknown> handle, void*, JSC::AbstractSlotVisitor& visitor, ASCIILiteral* reason)
 {
     if (UNLIKELY(reason))
-        *reason = "ArrayBuffer is opaque root";
+        *reason = "ArrayBuffer is opaque root"_s;
     auto& wrapper = *JSC::jsCast<JSC::JSArrayBuffer*>(handle.slot()->asCell());
     return visitor.containsOpaqueRoot(wrapper.impl());
 }

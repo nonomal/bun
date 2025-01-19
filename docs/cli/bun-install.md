@@ -21,7 +21,7 @@ Configuring with `bunfig.toml` is optional. Bun tries to be zero configuration i
 
 # Scope name      The value can be a URL string or an object
 "@mybigcompany" = { token = "123456", url = "https://registry.mybigcompany.com" }
-# URL is optional and fallsback to the default registry
+# URL is optional and falls back to the default registry
 
 # The "@" in the scope is optional
 mybigcompany2 = { token = "123456" }
@@ -47,6 +47,9 @@ registry = "https://registry.yarnpkg.com/"
 # Install for production? This is the equivalent to the "--production" CLI argument
 production = false
 
+# Save a text-based lockfile? This is equivalent to the "--save-text-lockfile" CLI argument
+saveTextLockfile = false
+
 # Disallow changes to lockfile? This is the equivalent to the "--frozen-lockfile" CLI argument
 frozenLockfile = false
 
@@ -54,13 +57,19 @@ frozenLockfile = false
 dryRun = true
 
 # Install optionalDependencies (default: true)
+# Setting this to false is equivalent to the `--omit=optional` CLI argument
 optional = true
 
 # Install local devDependencies (default: true)
+# Setting this to false is equivalent to the `--omit=dev` CLI argument
 dev = true
 
-# Install peerDependencies (default: false)
-peer = false
+# Install peerDependencies (default: true)
+# Setting this to false is equivalent to the `--omit=peer` CLI argument
+peer = true
+
+# Max number of concurrent lifecycle scripts (default: (cpu count or GOMAXPROCS) x2)
+concurrentScripts = 16
 
 # When using `bun install -g`, install packages here
 globalDir = "~/.bun/install/global"
@@ -105,6 +114,7 @@ export interface Install {
   scopes: Scopes;
   registry: Registry;
   production: boolean;
+  saveTextLockfile: boolean;
   frozenLockfile: boolean;
   dryRun: boolean;
   optional: boolean;
@@ -170,7 +180,7 @@ bun stores normalized `cpu` and `os` values from npm in the lockfile, along with
 
 ## Peer dependencies?
 
-Peer dependencies are handled similarly to yarn. `bun install` does not automatically install peer dependencies and will try to choose an existing dependency.
+Peer dependencies are handled similarly to yarn. `bun install` will automatically install peer dependencies. If the dependency is marked optional in `peerDependenciesMeta`, an existing dependency will be chosen if possible.
 
 ## Lockfile
 

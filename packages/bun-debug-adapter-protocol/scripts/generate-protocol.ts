@@ -1,11 +1,11 @@
-import type { Protocol, Type } from "../src/protocol/schema";
-import { writeFileSync } from "node:fs";
 import { spawnSync } from "node:child_process";
+import { writeFileSync } from "node:fs";
+import type { Protocol, Type } from "../src/protocol/schema";
 
 run().catch(console.error);
 
 async function run() {
-  const cwd = new URL("../protocol/", import.meta.url);
+  const cwd = new URL("../src/protocol/", import.meta.url);
   const runner = "Bun" in globalThis ? "bunx" : "npx";
   const write = (name: string, data: string) => {
     const path = new URL(name, cwd);

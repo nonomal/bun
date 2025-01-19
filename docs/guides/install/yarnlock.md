@@ -2,6 +2,12 @@
 name: Generate a human-readable lockfile
 ---
 
+{% callout %}
+Bun v1.1.39 introduced `bun.lock`, a JSONC formatted lockfile. `bun.lock` is human-readable and git-diffable without configuration, at no cost to performance. [**Learn more.**](https://bun.sh/docs/install/lockfile#text-based-lockfile)
+{% /callout %}
+
+---
+
 By default Bun generates a binary `bun.lockb` file when you run `bun install`. In some cases, it's preferable to generate a human-readable lockfile instead.
 
 ---
@@ -39,4 +45,4 @@ abab@^2.0.6:
 
 ---
 
-See [Docs > Package manager](/docs/cli/install) for complete documentation of Bun's package manager.
+See [Docs > Package manager](https://bun.sh/docs/cli/install) for complete documentation of Bun's package manager.

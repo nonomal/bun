@@ -1,6 +1,6 @@
 Bun supports two kinds of automatic reloading via CLI flags:
 
-- `--watch` mode, which hard restarts Bun's process when imported files change/
+- `--watch` mode, which hard restarts Bun's process when imported files change.
 - `--hot` mode, which soft reloads the code (without restarting the process) when imported files change.
 
 ## `--watch` mode
@@ -52,6 +52,7 @@ serve({
 
 {% /codetabs %}
 
+In this example, Bun is
 ![bun watch gif](https://user-images.githubusercontent.com/709451/228439002-7b9fad11-0db2-4e48-b82d-2b88c8625625.gif)
 
 Running `bun test` in watch mode and `save-on-keypress` enabled:
@@ -62,9 +63,18 @@ $ bun --watch test
 
 ![bun test gif](https://user-images.githubusercontent.com/709451/228396976-38a23864-4a1d-4c96-87cc-04e5181bf459.gif)
 
+{% callout %}
+
+The **`--no-clear-screen`** flag is useful in scenarios where you don’t want the terminal to clear, such as when running multiple `bun build --watch` commands simultaneously using tools like `concurrently`. Without this flag, the output of one instance could clear the output of others, potentially hiding errors from one instance beneath the output of another. The `--no-clear-screen` flag, similar to TypeScript’s `--preserveWatchOutput`, prevents this issue. It can be used in combination with `--watch`, for example: `bun build --watch --no-clear-screen`.
+
+{% /callout %}
+
+
 ## `--hot` mode
 
-Use `bun --hot` to enable hot reloading when executing code with Bun.
+Use `bun --hot` to enable hot reloading when executing code with Bun. This is distinct from `--watch` mode in that Bun does not hard-restart the entire process. Instead, it detects code changes and updates its internal module cache with the new code.
+
+**Note** — This is not the same as hot reloading in the browser! Many frameworks provide a "hot reloading" experience, where you can edit & save your frontend code (say, a React component) and see the changes reflected in the browser without refreshing the page. Bun's `--hot` is the server-side equivalent of this experience. To get hot reloading in the browser, use a framework like [Vite](https://vitejs.dev).
 
 ```bash
 $ bun --hot server.ts
@@ -99,15 +109,13 @@ Traditional file watchers like `nodemon` restart the entire process, so HTTP ser
 
 ### HTTP servers
 
-Bun provides the following simplified API for implementing HTTP servers. Refer to [API > HTTP](/docs/api/http) for full details.
+This makes it possible, for instance, to update your HTTP request handler without shutting down the server itself. When you save the file, your HTTP server will be reloaded with the updated code without the process being restarted. This results in seriously fast refresh speeds.
 
 ```ts#server.ts
-import {serve} from "bun";
-
 globalThis.count ??= 0;
 globalThis.count++;
 
-serve({
+Bun.serve({
   fetch(req: Request) {
     return new Response(`Reloaded ${globalThis.count} times`);
   },
@@ -115,18 +123,16 @@ serve({
 });
 ```
 
-The file above is simply exporting an object with a `fetch` handler defined. When this file is executed, Bun interprets this as an HTTP server and passes the exported object into `Bun.serve`.
+<!-- The file above is simply exporting an object with a `fetch` handler defined. When this file is executed, Bun interprets this as an HTTP server and passes the exported object into `Bun.serve`. -->
 
-When you save the file, your HTTP server will be reloaded with the updated code without the process being restarted. This results in seriously fast refresh speeds.
-
-{% image src="https://user-images.githubusercontent.com/709451/195477632-5fd8a73e-014d-4589-9ba2-e075ad9eb040.gif" alt="Bun vs Nodemon refresh speeds" caption="Bun on the left, Nodemon on the right." /%}
+<!-- {% image src="https://user-images.githubusercontent.com/709451/195477632-5fd8a73e-014d-4589-9ba2-e075ad9eb040.gif" alt="Bun vs Nodemon refresh speeds" caption="Bun on the left, Nodemon on the right." /%} -->
 
 {% callout %}
 **Note** — In a future version of Bun, support for Vite's `import.meta.hot` is planned to enable better lifecycle management for hot reloading and to align with the ecosystem.
 
 {% /callout %}
 
-{% details summary="Implementation `details`" %}
+{% details summary="Implementation details" %}
 
 On hot reload, Bun:
 

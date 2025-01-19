@@ -8,7 +8,7 @@ The `Bun.file()` function accepts a path and returns a `BunFile` instance. The `
 const path = "/path/to/package.json";
 const file = Bun.file(path);
 
-const stream = await file.stream();
+const stream = file.stream();
 ```
 
 ---
@@ -23,4 +23,4 @@ for await (const chunk of stream) {
 
 ---
 
-Refer to the [Streams](/docs/api/streams) documentation for more information on working with streams in Bun.
+Refer to the [Streams](https://bun.sh/docs/api/streams) documentation for more information on working with streams in Bun.

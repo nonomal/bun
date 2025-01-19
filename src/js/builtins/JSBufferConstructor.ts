@@ -1,3 +1,6 @@
+// This is marked as a constructor because Node.js allows `new Buffer.from`,
+// Some legacy dependencies depend on this, see #3638
+$constructor;
 export function from(items) {
   if ($isUndefinedOrNull(items)) {
     throw new TypeError(
@@ -24,6 +27,12 @@ export function from(items) {
       default: {
         return new $Buffer(items, $argument(1), $argument(2));
       }
+    }
+  }
+  if (typeof items === "object") {
+    const data = items.data;
+    if (items.type === "Buffer" && Array.isArray(data)) {
+      return new $Buffer(data);
     }
   }
 

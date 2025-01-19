@@ -1,4 +1,4 @@
-import { expect, it, describe } from "bun:test";
+import { describe, expect, it } from "bun:test";
 import { gc as gcTrace, withoutAggressiveGC } from "harness";
 
 const getByteLength = str => {
@@ -23,6 +23,12 @@ it("not enough space for replacement character", () => {
 });
 
 describe("TextEncoder", () => {
+  it("should handle undefined", () => {
+    const encoder = new TextEncoder();
+    expect(encoder.encode(undefined).length).toBe(0);
+    expect(encoder.encode(null).length).toBe(4);
+    expect(encoder.encode("").length).toBe(0);
+  });
   it("should encode latin1 text with non-ascii latin1 characters", () => {
     var text = "H©ell©o Wor©ld!";
 
@@ -111,7 +117,7 @@ describe("TextEncoder", () => {
     const fixture = new Uint8Array(await Bun.file(import.meta.dir + "/utf8-encoding-fixture.bin").arrayBuffer());
     const length = 0x110000;
     let textEncoder = new TextEncoder();
-    let textDecoder = new TextDecoder();
+    let textDecoder = new TextDecoder("utf-8", { ignoreBOM: true });
     let encodeOut = new Uint8Array(length * 4);
     let encodeIntoOut = new Uint8Array(length * 4);
     let encodeIntoBuffer = new Uint8Array(4);
